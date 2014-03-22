@@ -1,0 +1,99 @@
+<html>
+	<head>
+		<title>HTML5 | playlist</title>
+		<style>
+			body { 
+				text-align: center; 
+				padding: 2em 0; 
+				width: 640px; 
+				margin: auto; 
+				font-family: sans-serif; 
+				-moz-box-sizing: border-box; 
+				box-sizing: border-box;
+			} 
+			ul { 
+				padding: 0;
+			} 
+			li{
+				list-style: none;display: inline-block
+			}			
+			.playing { 
+				border:1px solid #DDD; 
+			}
+			li a { 
+				color: white;
+				text-decoration: none; 
+				font-size: 1.5em; 
+				display: inline-block;
+				padding: 10px;
+				width:150px;
+			}
+			video { 
+				width: 640px; 
+			}
+		</style>
+		<script src="mod.js">/</script>
+	</head>
+	<body>
+		<h1>Video List</h1>
+		<video id="vid" controls preload poster="poster/harriman.png"> 
+			<source src="src/harriman.mp4"> 
+			<a href="src/harriman.mp4">Download the video.</a> 
+		</video>
+		<h2>Playlist</h2> 
+		<ul id="playlist">
+			<li><a href="#src/harriman.mp4" data-poster="poster/harriman.png" class="playing" ><img width="150" src="poster/harriman.png"></a></li> 
+			<li><a href="#src/snitch.mp4" data-poster="poster/snitch.png"><img width="150" src="poster/harriman.png"></a></li> 
+			<li><a href="#src/startrek.mp4" data-poster="poster/snitch.png"><img width="150" src="poster/harriman.png"></a></li>
+		</ul>
+		<script>
+if (Modernizr.video) {
+    (function () {
+        var video = document.querySelector('video'),
+            playlist = document.querySelectorAll('ul#playlist li a'),
+            setExtension = (function () {
+                var extension = Modernizr.video.webm ? '.mp4' : '.mp4';
+                return function (src) {
+                	console.log(src);
+                    return src.replace(/\.\w{3,4}$/, extension);
+                };
+                
+            })(),
+            changeVideo = function (newVideoPath) {
+                video.poster = '';
+                video.src = newVideoPath;
+                video.load();
+                video.play();
+            },
+            toggleClassNames = function (context, name) {
+                name = name || 'playing';
+                [].forEach.call(context.querySelectorAll('.' + name), function (el) {
+                    el.classList.remove(name);
+                });
+                this.classList.add(name);
+            };
+
+        for (var i = 0; i < playlist.length; i++){
+	        playlist[i].addEventListener('click', function (e) {
+	            var href = setExtension(this.href);
+	            changeVideo(href);
+	            toggleClassNames.call(this, playlist);
+	            e.preventDefault();
+	        }, false);
+        }
+        video.addEventListener('ended', function () {
+            var nextVideo = playlist.querySelector('a.playing').parentNode.nextElementSibling.querySelector('a'),
+                nextVideoPath;
+            // If nothing found, we're at the end. Reset.
+            if (!nextVideo[0]) nextVideo = playlist.querySelector('li a');
+            // Get the path to the video we should play.
+            nextVideoPath = setExtension(nextVideo.href);
+            // Change to the next video.
+            changeVideo(nextVideoPath);
+            toggleClassNames.call(nextVideo, playlist);
+        }, false);
+    })();
+}
+		</script>
+	</body>
+</html>
